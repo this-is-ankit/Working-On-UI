@@ -282,18 +282,29 @@ app.post("/credits/purchase", async (c) => {
     const auth = await authService.authenticateUser(c.req.raw);
     authService.requireRole(auth, 'buyer');
 
-    const { creditId } = await c.req.json();
+    const { creditId, amount, paymentData } = await c.req.json();
     
-    if (!creditId) {
-      return c.json({ error: 'Credit ID is required' }, 400);
+    if (!creditId || !amount || !paymentData) {
+      return c.json({ error: 'Credit ID, amount, and payment data are required' }, 400);
     }
 
-    await DatabaseRepository.purchaseCredit(creditId, auth.user.id);
+    // Verify payment before processing credit transfer
+    const paymentValid = await verifyPayment(paymentData);
+    if (!paymentValid) {
+      return c.json({ error: 'Payment verification failed' }, 402);
+    }
+
+    // Process credit purchase with payment reference
+    await DatabaseRepository.purchaseCredit(creditId, auth.user.id, amount, paymentData.paymentId);
+    
+    // Calculate and record seller payout
+    await recordSellerPayout(creditId, paymentData, amount);
     
     return c.json({ 
       success: true, 
-      message: 'Credit purchased successfully',
-      creditId 
+      message: 'Credit purchased and payment processed successfully',
+      creditId,
+      paymentId: paymentData.paymentId
     });
   } catch (error) {
     const err=error as Error;
@@ -301,6 +312,61 @@ app.post("/credits/purchase", async (c) => {
     return c.json({ error: err.message }, 500);
   }
 });
+
+// Helper function to verify payment
+async function verifyPayment(paymentData: any): Promise<boolean> {
+  try {
+    // In production, this would verify with the actual payment gateway
+    console.log('Verifying payment:', paymentData.paymentId);
+    
+    // Mock verification - always returns true for demo
+    // In production: call Stripe/Razorpay API to verify payment status
+    return paymentData.status === 'succeeded';
+  } catch (error) {
+    console.error('Payment verification error:', error);
+    return false;
+  }
+}
+
+// Helper function to record seller payout
+async function recordSellerPayout(creditId: string, paymentData: any, amount: number): Promise<void> {
+  try {
+    // Get credit details to find the project and manager
+    const credit = await DatabaseRepository.getCarbonCredit(creditId);
+    if (!credit) return;
+    
+    const project = await DatabaseRepository.getProject(credit.projectId);
+    if (!project) return;
+    
+    // Calculate payout (90% to seller, 10% platform fee)
+    const totalAmountINR = Math.round(amount * 15 * 83); // Convert to INR
+    const platformFee = Math.round(totalAmountINR * 0.10);
+    const sellerPayout = totalAmountINR - platformFee;
+    
+    // Record payout information
+    const payoutRecord = {
+      id: `payout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      creditId,
+      projectId: credit.projectId,
+      managerId: project.managerId,
+      buyerId: paymentData.buyerId || 'unknown',
+      paymentId: paymentData.paymentId,
+      totalAmount: totalAmountINR,
+      platformFee,
+      sellerPayout,
+      currency: 'INR',
+      status: 'pending_transfer',
+      createdAt: new Date().toISOString()
+    };
+    
+    // Store payout record (in production, this would trigger actual bank transfer)
+    await DatabaseRepository.createPayoutRecord(payoutRecord);
+    
+    console.log(`Payout recorded for manager ${project.managerId}: ₹${sellerPayout}`);
+  } catch (error) {
+    console.error('Error recording seller payout:', error);
+  }
+}
 
 app.post("/credits/retire", async (c) => {
   try {

@@ -27,6 +27,16 @@ export interface Retirement {
   onChainTxHash?: string;
 }
 
+export interface PaymentData {
+  paymentId: string;
+  sessionId: string;
+  amount: number;
+  currency: string;
+  method: string;
+  status: string;
+  timestamp: string;
+}
+
 export interface Project {
   id: string;
   name: string;

@@ -10,6 +10,10 @@ import { StatsCards } from './ProjectManager/StatsCards';
 import { ProjectList } from './ProjectManager/ProjectList';
 import { NewProjectDialog } from './ProjectManager/NewProjectDialog';
 import { MRVSubmissionDialog } from './ProjectManager/MRVSubmissionDialog';
+
+import { PayoutDashboard } from './ProjectManager/PayoutDashboard';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+
 import {
   Project,
   NewProjectData,
@@ -248,16 +252,30 @@ export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) 
         </motion.div>
       </motion.div>
 
-      {/* Stats Cards */}
-      <StatsCards projects={projects} />
+      {/* Tabs for Projects and Payouts */}
+      <Tabs defaultValue="projects" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="projects">Projects & MRV</TabsTrigger>
+          <TabsTrigger value="payouts">Earnings & Payouts</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="projects" className="space-y-6">
+          {/* Stats Cards */}
+          <StatsCards projects={projects} />
+          {/* Projects List */}
+          <ProjectList 
+            projects={projects} 
+            onSelectProject={handleSelectProject}
+            onDeleteProject={handleDeleteProject}
+            loading={loading}
+          />
+        </TabsContent>
+        
+        <TabsContent value="payouts">
+          <PayoutDashboard managerId={user.id} />
+        </TabsContent>
+      </Tabs>
 
-      {/* Projects List */}
-      <ProjectList
-        projects={projects}
-        onSelectProject={handleSelectProject}
-        onDeleteProject={handleDeleteProject}
-        loading={loading}
-      />
 
       {/* New Project Dialog */}
       <NewProjectDialog

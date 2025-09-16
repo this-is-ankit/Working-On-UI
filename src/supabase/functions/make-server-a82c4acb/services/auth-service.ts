@@ -1,7 +1,7 @@
 // Authentication Service
 // Handles user authentication and authorization
 
-import { createClient } from "npm:@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
 export interface AuthResult {
   success: boolean;
@@ -16,8 +16,8 @@ export class AuthService {
 
   constructor() {
     this.supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
     );
   }
 

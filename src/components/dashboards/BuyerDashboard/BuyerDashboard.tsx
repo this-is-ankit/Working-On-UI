@@ -14,6 +14,7 @@ import { CreditCard } from './CreditCard';
 import { PurchaseDialog } from './PurchaseDialog';
 import { RetirementDialog } from './RetirementDialog';
 import { RetirementHistory } from './RetirementHistory';
+import { TransactionHistory } from './TransactionHistory';
 import { User, CarbonCredit, Retirement } from '../../../types/dashboard';
 
 interface BuyerDashboardProps {
@@ -27,9 +28,11 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
   const [showRetirementDialog, setShowRetirementDialog] = useState(false);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [retirementReason, setRetirementReason] = useState('');
   const [retirements, setRetirements] = useState<Retirement[]>([]);
   const [purchaseAmount, setPurchaseAmount] = useState(1);
+  const [paymentData, setPaymentData] = useState<any>(null);
 
   useEffect(() => {
     fetchAvailableCredits();
@@ -84,8 +87,20 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
     }
   };
 
-  const handlePurchase = async () => {
+  const handleInitiatePurchase = () => {
     if (!selectedCredit || purchaseAmount < 1 || purchaseAmount > selectedCredit.amount) return;
+    setShowPaymentForm(true);
+  };
+
+  const handlePaymentSuccess = async (payment: any) => {
+    setPaymentData(payment);
+    
+    // Now complete the credit purchase with payment verification
+    await completePurchase(payment);
+  };
+
+  const completePurchase = async (payment: any) => {
+    if (!selectedCredit) return;
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -99,7 +114,8 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
         },
         body: JSON.stringify({
           creditId: selectedCredit.id,
-          amount: purchaseAmount
+          amount: purchaseAmount,
+          paymentData: payment
         })
       });
 
@@ -110,7 +126,10 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
 
       toast.success(`Successfully purchased ${purchaseAmount} tCO₂e credits!`);
       setShowPurchaseDialog(false);
+      setShowPaymentForm(false);
       setSelectedCredit(null);
+
+      setPaymentData(null);
 
       fetchAvailableCredits();
       fetchOwnedCredits();
@@ -164,7 +183,14 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
   const openPurchaseDialog = (credit: CarbonCredit) => {
     setSelectedCredit(credit);
     setPurchaseAmount(1);
+    setShowPaymentForm(false);
+    setPaymentData(null);
     setShowPurchaseDialog(true);
+  };
+
+  const handleBackToSummary = () => {
+    setShowPaymentForm(false);
+    setPaymentData(null);
   };
 
   const openRetirementDialog = (credit: CarbonCredit) => {
@@ -345,6 +371,9 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
         <RetirementHistory retirements={retirements} />
       )}
 
+      {/* Transaction History */}
+      <TransactionHistory userId={user.id} />
+
       {/* Purchase Dialog */}
       <PurchaseDialog
         open={showPurchaseDialog}
@@ -352,7 +381,10 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
         credit={selectedCredit}
         purchaseAmount={purchaseAmount}
         onPurchaseAmountChange={setPurchaseAmount}
-        onPurchase={handlePurchase}
+        onPurchase={handleInitiatePurchase}
+        onPaymentSuccess={handlePaymentSuccess}
+        showPaymentForm={showPaymentForm}
+        onBackToSummary={handleBackToSummary}
       />
 
       {/* Retirement Dialog */}

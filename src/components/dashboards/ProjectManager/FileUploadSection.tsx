@@ -11,10 +11,10 @@ import {
   MRVFormData, 
   ProjectManagerDashboardProps 
 } from './types';
-import { StatsCards } from './components/StatsCards';
-import { ProjectList } from './components/ProjectList';
-import { NewProjectDialog } from './components/NewProjectDialog';
-import { MRVSubmissionDialog } from './components/MRVSubmissionDialog';
+import { StatsCards } from './StatsCards';
+import { ProjectList } from './ProjectList';
+import { NewProjectDialog } from './NewProjectDialog';
+import { MRVSubmissionDialog } from './MRVSubmissionDialog';
 
 export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) {
   const [projects, setProjects] = useState<Project[]>([]);

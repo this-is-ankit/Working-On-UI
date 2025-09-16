@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
+import { motion } from 'framer-motion';
+import { AnimatedCard, AnimatedCardContent, AnimatedCardHeader, AnimatedCardTitle, AnimatedCardDescription } from '../ui/animated-card';
+import { LoadingSpinner } from '../ui/loading-spinner';
 import { Shield } from 'lucide-react';
 import { WalletConnect } from '../WalletConnect';
 import { toast } from 'sonner';
@@ -142,36 +144,56 @@ export function NCCRVerifierDashboard({ user }: NCCRVerifierDashboardProps) {
 
   if (loading && projectsLoading) {
     return (
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+      <motion.div 
+        className="space-y-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <AnimatedCard>
+          <AnimatedCardHeader>
+            <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl animate-pulse"></div>
+          </AnimatedCardHeader>
+          <AnimatedCardContent>
+            <div className="space-y-6">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-24 bg-gray-200 rounded animate-pulse"></div>
+                <motion.div 
+                  key={i} 
+                  className="h-24 bg-gradient-to-r from-gray-200 to-gray-300 rounded-2xl"
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
+                />
               ))}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </AnimatedCardContent>
+        </AnimatedCard>
+      </motion.div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <motion.div 
+        className="flex justify-between items-start"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <div>
-          <h2 className="text-2xl font-bold flex items-center space-x-2">
+          <h2 className="text-3xl font-bold flex items-center space-x-3 mb-2">
             <Shield className="h-6 w-6 text-blue-600" />
             <span>NCCR Verification</span>
           </h2>
-          <p className="text-gray-600">Review and verify MRV reports for carbon credit issuance</p>
+          <p className="text-gray-600 text-lg">Review and verify MRV reports for carbon credit issuance</p>
         </div>
         <WalletConnect variant="button-only" />
-      </div>
+      </motion.div>
 
       {/* Stats Cards */}
       <StatsCards
@@ -183,14 +205,14 @@ export function NCCRVerifierDashboard({ user }: NCCRVerifierDashboardProps) {
       />
 
       {/* Registered Projects */}
-      <Card>
-        <CardHeader>
-          <CardTitle>All Registered Projects</CardTitle>
-          <CardDescription>
+      <AnimatedCard delay={0.4}>
+        <AnimatedCardHeader>
+          <AnimatedCardTitle className="text-2xl">All Registered Projects</AnimatedCardTitle>
+          <AnimatedCardDescription className="text-lg">
             Overview of all blue carbon projects in the registry
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </AnimatedCardDescription>
+        </AnimatedCardHeader>
+        <AnimatedCardContent>
           <ProjectList
             projects={projects}
             projectsLoading={projectsLoading}
@@ -198,18 +220,18 @@ export function NCCRVerifierDashboard({ user }: NCCRVerifierDashboardProps) {
             getStatusColor={getStatusColor}
             formatSimpleDate={formatSimpleDate}
           />
-        </CardContent>
-      </Card>
+        </AnimatedCardContent>
+      </AnimatedCard>
 
       {/* Pending MRV Reports */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Pending MRV Reports</CardTitle>
-          <CardDescription>
+      <AnimatedCard delay={0.5}>
+        <AnimatedCardHeader>
+          <AnimatedCardTitle className="text-2xl">Pending MRV Reports</AnimatedCardTitle>
+          <AnimatedCardDescription className="text-lg">
             Review ML-processed monitoring data and approve carbon credit issuance
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </AnimatedCardDescription>
+        </AnimatedCardHeader>
+        <AnimatedCardContent>
           <MRVList
             pendingMrv={pendingMrv}
             onReview={(mrv) => {
@@ -231,8 +253,8 @@ export function NCCRVerifierDashboard({ user }: NCCRVerifierDashboardProps) {
             getHealthScoreColor={getHealthScoreColor}
             getHealthScoreLabel={getHealthScoreLabel}
           />
-        </CardContent>
-      </Card>
+        </AnimatedCardContent>
+      </AnimatedCard>
 
       {/* Verification Dialog */}
       <VerificationDialog
@@ -254,6 +276,6 @@ export function NCCRVerifierDashboard({ user }: NCCRVerifierDashboardProps) {
         selectedProject={selectedProject}
         formatSimpleDate={formatSimpleDate}
       />
-    </div>
+    </motion.div>
   );
 }

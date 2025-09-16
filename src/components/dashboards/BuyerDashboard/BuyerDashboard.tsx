@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
-import { Button } from '../../ui/button';
-import { Separator } from '../../ui/separator';
-import { Progress } from '../../ui/progress';
+import { motion } from 'framer-motion';
+import { AnimatedCard, AnimatedCardContent, AnimatedCardDescription, AnimatedCardHeader, AnimatedCardTitle } from '../../ui/animated-card';
+import { AnimatedButton } from '../../ui/animated-button';
+import { StatsCard as UIStatsCard } from '../../ui/stats-card';
+import { LoadingSpinner } from '../../ui/loading-spinner';
 import { projectId } from '../../../utils/supabase/info';
 import { supabase } from '../../../utils/supabase/client';
-import { ShoppingCart, Award, TrendingUp, Leaf, ExternalLink } from 'lucide-react';
+import { ShoppingCart, Award, TrendingUp, Leaf } from 'lucide-react';
 import { toast } from 'sonner';
 import { WalletConnect } from '../../WalletConnect';
-import { StatsCard } from './StatsCard';
+import { StatsCard as LocalStatsCard } from './StatsCard';
 import { CreditCard } from './CreditCard';
 import { PurchaseDialog } from './PurchaseDialog';
 import { RetirementDialog } from './RetirementDialog';
@@ -110,8 +111,7 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
       toast.success(`Successfully purchased ${purchaseAmount} tCO₂e credits!`);
       setShowPurchaseDialog(false);
       setSelectedCredit(null);
-      
-      // Refresh both available and owned credits
+
       fetchAvailableCredits();
       fetchOwnedCredits();
     } catch (error) {
@@ -148,10 +148,9 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
       const data = await response.json();
       toast.success(`Successfully retired ${selectedCredit.amount} tCO₂e credits!`);
       setRetirements(prev => [data.retirement, ...prev]);
-      
-      // Refresh owned credits to remove retired credit
+
       fetchOwnedCredits();
-      
+
       setShowRetirementDialog(false);
       setRetirementReason('');
       setSelectedCredit(null);
@@ -176,64 +175,90 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <motion.div 
+        className="space-y-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {[...Array(3)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="space-y-0 pb-2">
-                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
-              </CardContent>
-            </Card>
+            <motion.div
+              key={i}
+              className="bg-white rounded-2xl p-6 shadow-lg"
+              animate={{ 
+                opacity: [0.5, 1, 0.5],
+                scale: [1, 1.02, 1]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                delay: i * 0.2
+              }}
+            >
+              <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl mb-4"></div>
+              <div className="h-12 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl"></div>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <motion.div 
+        className="flex justify-between items-start"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <div>
-          <h2 className="text-2xl font-bold flex items-center space-x-2">
+          <h2 className="text-3xl font-bold flex items-center space-x-3 mb-2">
             <ShoppingCart className="h-6 w-6 text-green-600" />
             <span>Carbon Credit Marketplace</span>
           </h2>
-          <p className="text-gray-600">Purchase and retire verified blue carbon credits</p>
+          <p className="text-gray-600 text-lg">Purchase and retire verified blue carbon credits</p>
         </div>
         <WalletConnect variant="button-only" />
-      </div>
+      </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatsCard
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <UIStatsCard
           title="Owned Credits"
           value={ownedCredits.reduce((sum, credit) => sum + credit.amount, 0)}
           unit="tCO₂e"
           description="Available for retirement"
           icon={ShoppingCart}
           color="green"
+          delay={0}
         />
-        <StatsCard
+        <UIStatsCard
           title="Available Credits"
           value={availableCredits.reduce((sum, credit) => sum + credit.amount, 0)}
           unit="tCO₂e"
           description="In marketplace"
           icon={Award}
           color="blue"
+          delay={0.1}
         />
-        <StatsCard
+        <UIStatsCard
           title="Premium Credits"
           value={availableCredits.filter(credit => credit.healthScore >= 0.8).length}
           unit=""
           description="High-quality projects"
           icon={TrendingUp}
           color="purple"
+          delay={0.2}
         />
-        <StatsCard
+        <LocalStatsCard
           title="Retired Credits"
           value={retirements.reduce((sum, retirement) => sum + retirement.amount, 0)}
           unit="tCO₂e"
@@ -244,22 +269,35 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
       </div>
 
       {/* Available Credits Marketplace */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Available Carbon Credits</CardTitle>
-          <CardDescription>
+      <AnimatedCard delay={0.4}>
+        <AnimatedCardHeader>
+          <AnimatedCardTitle className="text-2xl">Available Carbon Credits</AnimatedCardTitle>
+          <AnimatedCardDescription className="text-lg">
             Purchase verified blue carbon credits from coastal restoration projects
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </AnimatedCardDescription>
+        </AnimatedCardHeader>
+        <AnimatedCardContent>
           {availableCredits.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <Award className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No credits available for purchase</p>
+            <motion.div 
+              className="text-center py-16 text-gray-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+            >
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 10, -10, 0]
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                <Award className="h-16 w-16 mx-auto mb-6 opacity-50" />
+              </motion.div>
+              <p className="text-lg font-medium">No credits available for purchase</p>
               <p className="text-sm mt-2">Check back later for new verified projects</p>
-            </div>
+            </motion.div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {availableCredits.map((credit) => (
                 <CreditCard
                   key={credit.id}
@@ -272,20 +310,20 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </AnimatedCardContent>
+      </AnimatedCard>
 
       {/* Owned Credits for Retirement */}
       {ownedCredits.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Your Owned Credits</CardTitle>
-            <CardDescription>
+        <AnimatedCard delay={0.5}>
+          <AnimatedCardHeader>
+            <AnimatedCardTitle className="text-2xl">Your Owned Credits</AnimatedCardTitle>
+            <AnimatedCardDescription className="text-lg">
               Credits you own and can retire for carbon offsetting
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </AnimatedCardDescription>
+          </AnimatedCardHeader>
+          <AnimatedCardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {ownedCredits.map((credit) => (
                 <CreditCard
                   key={credit.id}
@@ -298,8 +336,8 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
                 />
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </AnimatedCardContent>
+        </AnimatedCard>
       )}
 
       {/* Retirement History */}
@@ -326,6 +364,6 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
         onRetirementReasonChange={setRetirementReason}
         onRetire={handleRetirement}
       />
-    </div>
+    </motion.div>
   );
 }

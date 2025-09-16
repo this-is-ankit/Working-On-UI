@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Waves, Leaf, Shield, TrendingUp, CheckCircle, XCircle } from 'lucide-react';
 
 export function AuthForm() {
+  const [activeTab, setActiveTab] = useState('signin');
   const [loading, setLoading] = useState(false);
   const [checkingEligibility, setCheckingEligibility] = useState(false);
   const [signInData, setSignInData] = useState({

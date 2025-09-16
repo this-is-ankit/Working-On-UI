@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
+import { StatsCard } from '../../ui/stats-card';
 import { TreePine, Activity, MapPin } from 'lucide-react';
 
 
@@ -26,52 +26,40 @@ const calculateTotalArea = (projects: Project[]) => {
 
 export function StatsCards({ projects }: StatsCardsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-          <TreePine className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{projects.length}</div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Approved Projects</CardTitle>
-          <Activity className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {projects.filter(p => p.status === 'approved').length}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Area</CardTitle>
-          <MapPin className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {calculateTotalArea(projects).toLocaleString()} ha
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">On Blockchain</CardTitle>
-          <Activity className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {projects.filter(p => p.onChainTxHash).length}
-          </div>
-        </CardContent>
-      </Card>
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <StatsCard
+        title="Total Projects"
+        value={projects.length}
+        description="Registered projects"
+        icon={TreePine}
+        color="blue"
+        delay={0}
+      />
+      <StatsCard
+        title="Approved Projects"
+        value={projects.filter(p => p.status === 'approved').length}
+        description="Successfully verified"
+        icon={Activity}
+        color="green"
+        delay={0.1}
+      />
+      <StatsCard
+        title="Total Area"
+        value={calculateTotalArea(projects)}
+        unit="ha"
+        description="Hectares under management"
+        icon={MapPin}
+        color="teal"
+        delay={0.2}
+      />
+      <StatsCard
+        title="On Blockchain"
+        value={projects.filter(p => p.onChainTxHash).length}
+        description="Blockchain verified"
+        icon={Activity}
+        color="purple"
+        delay={0.3}
+      />
     </div>
   );
 }

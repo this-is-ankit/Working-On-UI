@@ -131,6 +131,7 @@ export class DatabaseRepository {
   }
 
   static async purchaseCredit(creditId: string, buyerId: string): Promise<void> {
+  static async purchaseCredit(creditId: string, buyerId: string, amount?: number, paymentId?: string): Promise<void> {
     const credit = await this.getCarbonCredit(creditId);
     if (!credit) {
       throw new Error('Credit not found');
@@ -145,8 +146,39 @@ export class DatabaseRepository {
     }
     
     await this.updateCarbonCredit(creditId, {
-      ownerId: buyerId
+      ownerId: buyerId,
+      purchaseAmount: amount,
+      paymentReference: paymentId,
+      purchasedAt: new Date().toISOString()
     });
+  }
+
+  // Payout operations
+  static async createPayoutRecord(payout: any): Promise<void> {
+    await kv.set(payout.id, payout);
+  }
+
+  static async getPayoutRecord(payoutId: string): Promise<any | null> {
+    const result = await kv.get(payoutId);
+    return result?.value || null;
+  }
+
+  static async getManagerPayouts(managerId: string): Promise<any[]> {
+    const allPayouts = await kv.getByPrefix('payout_');
+    return allPayouts
+      .map(p => p.value)
+      .filter(payout => payout.managerId === managerId);
+  }
+
+  static async updatePayoutStatus(payoutId: string, status: string): Promise<void> {
+    const existing = await this.getPayoutRecord(payoutId);
+    if (existing) {
+      await kv.set(payoutId, { 
+        ...existing, 
+        status,
+        updatedAt: new Date().toISOString()
+      });
+    }
   }
 
   // ML Verification operations

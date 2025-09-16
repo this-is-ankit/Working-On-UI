@@ -131,6 +131,7 @@ export class DatabaseRepository {
   }
 
   static async purchaseCredit(creditId: string, buyerId: string): Promise<void> {
+  }
   static async purchaseCredit(creditId: string, buyerId: string, amount?: number, paymentId?: string): Promise<void> {
     const credit = await this.getCarbonCredit(creditId);
     if (!credit) {

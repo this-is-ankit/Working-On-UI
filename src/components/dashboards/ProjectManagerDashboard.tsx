@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '../ui/button';
+import { motion } from 'framer-motion';
+import { AnimatedButton } from '../ui/animated-button';
+import { LoadingSpinner } from '../ui/loading-spinner';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { WalletConnect } from '../WalletConnect';
@@ -8,13 +10,19 @@ import { StatsCards } from './ProjectManager/StatsCards';
 import { ProjectList } from './ProjectManager/ProjectList';
 import { NewProjectDialog } from './ProjectManager/NewProjectDialog';
 import { MRVSubmissionDialog } from './ProjectManager/MRVSubmissionDialog';
+<<<<<<< HEAD
 import { PayoutDashboard } from './ProjectManager/PayoutDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { 
   Project, 
   NewProjectData, 
+=======
+import {
+  Project,
+  NewProjectData,
+>>>>>>> 43d8d35ff5681ec6b9f8b0deca373cadbec45639
   MRVFormData,
-  EcosystemType 
+  EcosystemType
 } from './ProjectManager/types'; // You'll need to create this types file
 
 interface User {
@@ -25,7 +33,7 @@ interface User {
     role: string;
   };
 }
-
+  
 interface ProjectManagerDashboardProps {
   user: User;
 }
@@ -37,7 +45,7 @@ export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) 
   const [showMRVDialog, setShowMRVDialog] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [connectedWallet, setConnectedWallet] = useState<any>(null);
-  
+
   const [newProject, setNewProject] = useState<NewProjectData>({
     name: '',
     description: '',
@@ -94,7 +102,7 @@ export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) 
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       await ApiService.createProject(newProject);
       toast.success(showApiSuccess('Project registered successfully!'));
@@ -118,7 +126,7 @@ export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) 
 
   const handleSubmitMRV = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       if (!connectedWallet) {
         toast.error('Please connect your wallet to submit MRV data with blockchain verification');
@@ -130,20 +138,20 @@ export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) 
       const allFiles = [...mrvData.photos, ...mrvData.iotFiles, ...mrvData.documents];
       if (allFiles.length > 0) {
         toast.info(`Uploading ${allFiles.length} files...`);
-        
+
         const uploadResult = await ApiService.uploadMRVFiles(mrvData.projectId, allFiles);
         uploadedFiles = uploadResult.files;
-        
+
         const photoCount = uploadedFiles.filter((f: any) => f.category === 'photo').length;
         const iotCount = uploadedFiles.filter((f: any) => f.category === 'iot_data').length;
         const docCount = uploadedFiles.filter((f: any) => f.category === 'document').length;
-        
+
         let message = `Successfully uploaded ${uploadedFiles.length} files`;
         if (photoCount > 0) message += ` (${photoCount} photos`;
         if (iotCount > 0) message += `${photoCount > 0 ? ', ' : ' ('}${iotCount} IoT files`;
         if (docCount > 0) message += `${(photoCount > 0 || iotCount > 0) ? ', ' : ' ('}${docCount} documents`;
         if (photoCount > 0 || iotCount > 0 || docCount > 0) message += ')';
-        
+
         toast.success(message);
       }
 
@@ -168,7 +176,7 @@ export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) 
 
       await ApiService.submitMRVData(mrvPayload);
       toast.success(showApiSuccess('MRV data submitted successfully! Processing with ML model and blockchain verification...'));
-      
+
       setShowMRVDialog(false);
       setMrvData({
         projectId: '',
@@ -213,21 +221,40 @@ export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) 
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      className="space-y-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <motion.div
+        className="flex justify-between items-start"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <div>
-          <h2 className="text-2xl font-bold">Project Management</h2>
-          <p className="text-gray-600">Register and manage your blue carbon projects</p>
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">Project Management</h2>
+          <p className="text-gray-600 text-lg">Register and manage your blue carbon projects</p>
         </div>
-        <div className="flex flex-col space-y-3 items-end">
+        <motion.div
+          className="flex flex-col space-y-3 items-end"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
           <WalletConnect variant="button-only" className="mb-2" />
-          <Button onClick={() => setShowNewProjectDialog(true)}>
+          <AnimatedButton
+            onClick={() => setShowNewProjectDialog(true)}
+            className="flex items-center bg-white text-black border border-black hover:bg-black hover:text-white transition-colors duration-300"
+          >
             <Plus className="h-4 w-4 mr-2" />
             New Project
-          </Button>
-        </div>
-      </div>
+          </AnimatedButton>
+
+        </motion.div>
+      </motion.div>
 
       {/* Tabs for Projects and Payouts */}
       <Tabs defaultValue="projects" className="w-full">
@@ -240,6 +267,7 @@ export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) 
           {/* Stats Cards */}
           <StatsCards projects={projects} />
 
+<<<<<<< HEAD
           {/* Projects List */}
           <ProjectList 
             projects={projects} 
@@ -253,6 +281,15 @@ export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) 
           <PayoutDashboard managerId={user.id} />
         </TabsContent>
       </Tabs>
+=======
+      {/* Projects List */}
+      <ProjectList
+        projects={projects}
+        onSelectProject={handleSelectProject}
+        onDeleteProject={handleDeleteProject}
+        loading={loading}
+      />
+>>>>>>> 43d8d35ff5681ec6b9f8b0deca373cadbec45639
 
       {/* New Project Dialog */}
       <NewProjectDialog
@@ -275,6 +312,6 @@ export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) 
         onWalletConnected={handleWalletConnected}
         onWalletDisconnected={handleWalletDisconnected}
       />
-    </div>
+    </motion.div>
   );
 }

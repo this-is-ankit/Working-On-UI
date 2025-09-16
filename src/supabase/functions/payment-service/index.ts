@@ -1,7 +1,7 @@
-import { Hono } from "npm:hono@4.9.7";
-import { cors } from "npm:hono@4.9.7/cors";
-import { logger } from "npm:hono@4.9.7/logger";
-import { createClient } from "npm:@supabase/supabase-js";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { createClient } from "@supabase/supabase-js";
 
 const app = new Hono();
 
@@ -16,13 +16,13 @@ app.use("/*", cors({
 }));
 
 const supabase = createClient(
-  Deno.env.get('SUPABASE_URL')!,
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
 // Mock Stripe configuration (replace with actual Stripe keys)
-const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY') || 'sk_test_mock_key';
-const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET') || 'whsec_mock_secret';
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key';
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_mock_secret';
 
 interface PaymentSession {
   id: string;

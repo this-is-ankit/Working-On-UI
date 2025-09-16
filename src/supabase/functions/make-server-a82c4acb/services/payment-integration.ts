@@ -113,8 +113,8 @@ export class MockPaymentProvider implements PaymentProvider {
 
 // Factory function to create payment provider
 export function createPaymentProvider(provider: 'stripe' | 'razorpay' = 'razorpay'): PaymentProvider {
-  const apiKey = Deno.env.get(`${provider.toUpperCase()}_SECRET_KEY`) || 'mock_key';
-  const webhookSecret = Deno.env.get(`${provider.toUpperCase()}_WEBHOOK_SECRET`) || 'mock_secret';
+  const apiKey = process.env[`${provider.toUpperCase()}_SECRET_KEY`] || 'mock_key';
+  const webhookSecret = process.env[`${provider.toUpperCase()}_WEBHOOK_SECRET`] || 'mock_secret';
   
   // In production, return actual Stripe or Razorpay implementation
   return new MockPaymentProvider(apiKey, webhookSecret);

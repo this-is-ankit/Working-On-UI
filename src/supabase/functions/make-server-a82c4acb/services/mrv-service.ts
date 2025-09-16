@@ -1,7 +1,7 @@
 // MRV Data Management Service
 // Handles Monitoring, Reporting, and Verification data processing
 
-import { createClient } from "npm:@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 import { DatabaseRepository } from "../repository.ts";
 import { MRVData, CreateMRVRequest, UploadedFile, CarbonCredit } from "../models.ts";
 
@@ -11,8 +11,8 @@ export class MRVService {
 
   constructor() {
     this.supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
     );
     this.initializeBucket();
   }

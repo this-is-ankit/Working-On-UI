@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
-import { Badge } from '../../ui/badge';
-import { Button } from '../../ui/button';
-import { Separator } from '../../ui/separator';
-import { ScrollArea } from '../../ui/scroll-area';
-import { ApiService, showApiError } from '../../../utils/frontend/api-service';
+import { motion } from 'framer-motion';
+import { AnimatedCard, AnimatedCardContent, AnimatedCardDescription, AnimatedCardHeader, AnimatedCardTitle } from '../../ui/animated-card';
+import { AnimatedBadge } from '../../ui/animated-badge';
+import { AnimatedButton } from '../../ui/animated-button';
+import { StatsCard } from '../../ui/stats-card';
+import { CounterAnimation } from '../../ui/counter-animation';
+import { LoadingSpinner } from '../../ui/loading-spinner';
+import { ApiService, showApiError , showApiSuccess } from '../../../utils/frontend/api-service';
 import { Waves, TreePine, Award, ExternalLink, MapPin, Calendar, Leaf, RefreshCw, AlertCircle, Server } from 'lucide-react';
 import { toast } from 'sonner';
 import { projectId } from '../../../utils/supabase/info';
+// At the top of PublicDashboard.tsx, add these imports:
+import { NewProjectDialog } from '../ProjectManager/NewProjectDialog'; // Adjust path if needed
+import { NewProjectData } from '../ProjectManager/types'; // Adjust path if needed
+
 
 interface Project {
   id: string;
@@ -161,34 +167,57 @@ export function PublicDashboard() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <motion.div 
+        className="space-y-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[...Array(3)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="space-y-0 pb-2">
-                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
-              </CardContent>
-            </Card>
+            <motion.div
+              key={i}
+              className="bg-white rounded-2xl p-6 shadow-lg"
+              animate={{ 
+                opacity: [0.5, 1, 0.5],
+                scale: [1, 1.02, 1]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                delay: i * 0.2
+              }}
+            >
+              <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl mb-4"></div>
+              <div className="h-12 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl"></div>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <motion.div 
+      className="space-y-12"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
       {/* Connection Status Banner */}
       {connectionError && (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
+        <motion.div 
+          className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-400 text-yellow-800 p-6 rounded-2xl shadow-lg"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="flex items-center">
             <AlertCircle className="h-6 w-6 mr-2" />
             <div>
               <p className="font-medium">Server Connection Issue</p>
               <p>Cannot connect to the backend server. Showing demo data.</p>
-              <Button 
+              <AnimatedButton 
                 variant="outline" 
                 size="sm" 
                 className="mt-2"
@@ -196,216 +225,304 @@ export function PublicDashboard() {
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Retry Connection
-              </Button>
+              </AnimatedButton>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Hero Section */}
-      <div className="text-center py-12 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg text-white">
-        <h2 className="text-3xl font-bold mb-4">India's Blue Carbon Future</h2>
-        <p className="text-lg opacity-90 max-w-2xl mx-auto">
-          Protecting coastal ecosystems while generating verified carbon credits 
-          through transparent, blockchain-powered monitoring and verification.
-        </p>
-      </div>
+      <motion.div 
+        className="text-center py-16 bg-gradient-to-r from-blue-600 to-green-600 rounded-3xl text-white shadow-2xl relative overflow-hidden"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-blue-600/90 to-green-600/90"
+          animate={{
+            background: [
+              "linear-gradient(45deg, rgba(37, 99, 235, 0.9), rgba(34, 197, 94, 0.9))",
+              "linear-gradient(45deg, rgba(34, 197, 94, 0.9), rgba(37, 99, 235, 0.9))",
+              "linear-gradient(45deg, rgba(37, 99, 235, 0.9), rgba(34, 197, 94, 0.9))"
+            ]
+          }}
+          transition={{ duration: 4, repeat: Infinity }}
+        />
+        <div className="relative z-10">
+          <motion.h2 
+            className="text-4xl font-bold mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            India's Blue Carbon Future
+          </motion.h2>
+          <motion.p 
+            className="text-xl opacity-95 max-w-3xl mx-auto leading-relaxed"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            Protecting coastal ecosystems while generating verified carbon credits 
+            through transparent, blockchain-powered monitoring and verification.
+          </motion.p>
+        </div>
+      </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Credits Issued</CardTitle>
-            <Award className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-700">
-              {stats?.totalCreditsIssued.toLocaleString()} tCO₂e
-            </div>
-            <p className="text-xs text-blue-600 mt-1">
-              Verified carbon sequestration
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-green-50 to-green-100">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Credits Retired</CardTitle>
-            <Leaf className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-700">
-              {stats?.totalCreditsRetired.toLocaleString()} tCO₂e
-            </div>
-            <p className="text-xs text-green-600 mt-1">
-              Permanently offset emissions
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-teal-50 to-teal-100">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
-            <TreePine className="h-4 w-4 text-teal-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-teal-700">
-              {stats?.totalProjects || 0}
-            </div>
-            <p className="text-xs text-teal-600 mt-1">
-              Coastal ecosystem projects
-            </p>
-            {connectionError && (
-              <p className="text-xs text-amber-600 mt-1 flex items-center">
-                <Server className="h-3 w-3 mr-1" />
-                Demo data
-              </p>
-            )}
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <StatsCard
+          title="Total Credits Issued"
+          value={stats?.totalCreditsIssued || 0}
+          unit="tCO₂e"
+          description="Verified carbon sequestration"
+          icon={Award}
+          color="blue"
+          delay={0}
+        />
+        <StatsCard
+          title="Credits Retired"
+          value={stats?.totalCreditsRetired || 0}
+          unit="tCO₂e"
+          description="Permanently offset emissions"
+          icon={Leaf}
+          color="green"
+          delay={0.1}
+        />
+        <StatsCard
+          title="Active Projects"
+          value={stats?.totalProjects || 0}
+          description={connectionError ? "Demo data - Coastal ecosystem projects" : "Coastal ecosystem projects"}
+          icon={TreePine}
+          color="teal"
+          delay={0.2}
+        />
       </div>
 
       {/* Rest of your component remains the same */}
       {/* Impact Metrics */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+      <AnimatedCard delay={0.3}>
+        <AnimatedCardHeader>
+          <AnimatedCardTitle className="flex items-center space-x-2 text-2xl">
             <Waves className="h-5 w-5 text-blue-600" />
             <span>Environmental Impact</span>
-          </CardTitle>
-          <CardDescription>
+          </AnimatedCardTitle>
+          <AnimatedCardDescription className="text-lg">
             Our blue carbon projects are making a measurable difference
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-700">
-                {Math.round((stats?.totalCreditsIssued || 0) * 2.5).toLocaleString()}
-              </div>
-              <div className="text-sm text-blue-600">Hectares Protected</div>
-            </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-700">
-                {Math.round((stats?.totalCreditsIssued || 0) * 0.4).toLocaleString()}
-              </div>
-              <div className="text-sm text-green-600">Trees Equivalent</div>
-            </div>
-            <div className="text-center p-4 bg-teal-50 rounded-lg">
-              <div className="text-2xl font-bold text-teal-700">
-                {Math.round((stats?.totalCreditsIssued || 0) * 1.2).toLocaleString()}
-              </div>
-              <div className="text-sm text-teal-600">Tonnes Biomass</div>
-            </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-700">
-                {Math.round((stats?.totalCreditsRetired || 0) * 0.22).toLocaleString()}
-              </div>
-              <div className="text-sm text-purple-600">Cars Off Road (yearly)</div>
-            </div>
+          </AnimatedCardDescription>
+        </AnimatedCardHeader>
+        <AnimatedCardContent className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                value: Math.round((stats?.totalCreditsIssued || 0) * 2.5),
+                label: "Hectares Protected",
+                color: "blue",
+                delay: 0
+              },
+              {
+                value: Math.round((stats?.totalCreditsIssued || 0) * 0.4),
+                label: "Trees Equivalent",
+                color: "green", 
+                delay: 0.1
+              },
+              {
+                value: Math.round((stats?.totalCreditsIssued || 0) * 1.2),
+                label: "Tonnes Biomass",
+                color: "teal",
+                delay: 0.2
+              },
+              {
+                value: Math.round((stats?.totalCreditsRetired || 0) * 0.22),
+                label: "Cars Off Road (yearly)",
+                color: "purple",
+                delay: 0.3
+              }
+            ].map((metric, index) => (
+              <motion.div 
+                key={index}
+                className={`text-center p-6 bg-gradient-to-br ${
+                  metric.color === 'blue' ? 'from-blue-50 to-blue-100' :
+                  metric.color === 'green' ? 'from-green-50 to-green-100' :
+                  metric.color === 'teal' ? 'from-teal-50 to-teal-100' :
+                  'from-purple-50 to-purple-100'
+                } rounded-2xl shadow-lg`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: metric.delay }}
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.1)"
+                }}
+              >
+                <div className={`text-3xl font-bold mb-2 ${
+                  metric.color === 'blue' ? 'text-blue-700' :
+                  metric.color === 'green' ? 'text-green-700' :
+                  metric.color === 'teal' ? 'text-teal-700' :
+                  'text-purple-700'
+                }`}>
+                  <CounterAnimation end={metric.value} duration={2} />
+                </div>
+                <div className={`text-sm font-medium ${
+                  metric.color === 'blue' ? 'text-blue-600' :
+                  metric.color === 'green' ? 'text-green-600' :
+                  metric.color === 'teal' ? 'text-teal-600' :
+                  'text-purple-600'
+                }`}>
+                  {metric.label}
+                </div>
+              </motion.div>
+            ))}
           </div>
-        </CardContent>
-      </Card>
+        </AnimatedCardContent>
+      </AnimatedCard>
 
       {/* Projects List */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
+      <AnimatedCard delay={0.4}>
+        <AnimatedCardHeader>
+          <AnimatedCardTitle className="flex items-center space-x-2 text-2xl">
             <TreePine className="h-5 w-5 text-green-600" />
             <span>Registered Projects</span>
-          </CardTitle>
-          <CardDescription>
+          </AnimatedCardTitle>
+          <AnimatedCardDescription className="text-lg">
             Explore blue carbon projects across India's coastal regions
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </AnimatedCardDescription>
+        </AnimatedCardHeader>
+        <AnimatedCardContent>
           {!stats?.projects || stats.projects.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <TreePine className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No projects registered yet</p>
+            <motion.div 
+              className="text-center py-16 text-gray-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+            >
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  rotate: [0, 5, -5, 0]
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                <TreePine className="h-16 w-16 mx-auto mb-6 opacity-50" />
+              </motion.div>
+              <p className="text-lg font-medium">No projects registered yet</p>
               <p className="text-sm mt-2">Be the first to register a blue carbon project!</p>
-            </div>
+            </motion.div>
           ) : (
             <>
               {connectionError && (
-                <div className="mb-4 bg-amber-50 border-l-4 border-amber-400 p-4 rounded">
+                <motion.div 
+                  className="mb-6 bg-gradient-to-r from-amber-50 to-yellow-50 border-l-4 border-amber-400 p-4 rounded-2xl"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6 }}
+                >
                   <div className="flex items-center">
                     <AlertCircle className="h-5 w-5 text-amber-500 mr-2" />
                     <span className="text-amber-700">Showing demo project data</span>
                   </div>
-                </div>
+                </motion.div>
               )}
-              <ScrollArea className="h-96">
-                <div className="space-y-4">
+              <div className="max-h-96 overflow-y-auto space-y-6">
+                <div className="space-y-6">
                   {stats.projects.map((project) => (
-                    <div key={project.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <motion.div 
+                      key={project.id} 
+                      className="border border-gray-100 rounded-2xl p-6 hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-lg"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      whileHover={{ y: -2 }}
+                      transition={{ duration: 0.3 }}
+                    >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <h3 className="font-semibold text-lg">{project.name}</h3>
-                            <Badge className={getStatusColor(project.status)}>
+                          <div className="flex items-center space-x-3 mb-3">
+                            <h3 className="font-bold text-xl text-gray-800">{project.name}</h3>
+                            <AnimatedBadge 
+                              variant={
+                                project.status === 'approved' ? 'success' :
+                                project.status === 'rejected' ? 'error' :
+                                project.status === 'mrv_submitted' ? 'warning' :
+                                'info'
+                              }
+                            >
                               {project.status.replace('_', ' ').toUpperCase()}
-                            </Badge>
+                            </AnimatedBadge>
                           </div>
                           
-                          <p className="text-gray-600 mb-3">{project.description}</p>
+                          <p className="text-gray-600 mb-4 leading-relaxed">{project.description}</p>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-4">
                             <div className="flex items-center space-x-2">
                               <MapPin className="h-4 w-4 text-gray-400" />
-                              <span>{project.location}</span>
+                              <span className="font-medium">{project.location}</span>
                             </div>
                             <div className="flex items-center space-x-2">
                               <TreePine className="h-4 w-4 text-gray-400" />
-                              <span>{project.ecosystemType}</span>
+                              <span className="font-medium capitalize">{project.ecosystemType}</span>
                             </div>
                             <div className="flex items-center space-x-2">
                               <Calendar className="h-4 w-4 text-gray-400" />
-                              <span>{formatDate(project.createdAt)}</span>
+                              <span className="font-medium">{formatDate(project.createdAt)}</span>
                             </div>
                           </div>
                           
-                          <div className="mt-3 text-sm text-gray-600">
-                            <strong>Area:</strong> {project.area.toLocaleString()} hectares
+                          <div className="text-sm text-gray-600">
+                            <span className="font-semibold">Area:</span> {project.area.toLocaleString()} hectares
                           </div>
                         </div>
                         
                         {project.onChainTxHash && (
-                          <Button variant="outline" size="sm" className="ml-4">
+                          <AnimatedButton variant="outline" size="sm" className="ml-4">
                             <ExternalLink className="h-4 w-4 mr-2" />
                             View on Chain
-                          </Button>
+                          </AnimatedButton>
                         )}
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
-              </ScrollArea>
+              </div>
             </>
           )}
-        </CardContent>
-      </Card>
+        </AnimatedCardContent>
+      </AnimatedCard>
 
       {/* Call to Action */}
-      <Card className="bg-gradient-to-r from-blue-600 to-green-600 text-white">
-        <CardContent className="py-8">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold mb-4">Join the Blue Carbon Movement</h3>
-            <p className="text-lg opacity-90 mb-6 max-w-2xl mx-auto">
+      <AnimatedCard className="bg-gradient-to-r from-blue-600 to-green-600 text-white border-none shadow-2xl" delay={0.5}>
+        <AnimatedCardContent className="py-12">
+          <motion.div 
+            className="text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <h3 className="text-3xl font-bold mb-6">Join the Blue Carbon Movement</h3>
+            <p className="text-xl opacity-95 mb-8 max-w-3xl mx-auto leading-relaxed">
               Whether you're a coastal community, project developer, or corporate buyer, 
               help us build a transparent and sustainable blue carbon economy for India.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="secondary" size="lg">
+            <motion.div 
+              className="flex flex-col sm:flex-row gap-6 justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <AnimatedButton variant="secondary" size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
                 Register a Project
-              </Button>
-              <Button variant="outline" size="lg" className="text-white border-white hover:bg-white hover:text-blue-600">
+              </AnimatedButton>
+              <AnimatedButton variant="outline" size="lg" className="text-white border-white hover:bg-white hover:text-blue-600">
                 Become a Buyer
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+              </AnimatedButton>
+            </motion.div>
+          </motion.div>
+        </AnimatedCardContent>
+      </AnimatedCard>
+    </motion.div>
   );
 }

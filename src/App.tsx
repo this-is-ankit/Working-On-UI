@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
-import { Button } from './components/ui/button';
-import { Input } from './components/ui/input';
-import { Label } from './components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
-import { Badge } from './components/ui/badge';
-import { Separator } from './components/ui/separator';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatedCard, AnimatedCardContent, AnimatedCardDescription, AnimatedCardHeader, AnimatedCardTitle } from './components/ui/animated-card';
+import { AnimatedButton } from './components/ui/animated-button';
+import { AnimatedTabs } from './components/ui/animated-tabs';
+import { AnimatedBadge } from './components/ui/animated-badge';
+import { LoadingSpinner } from './components/ui/loading-spinner';
 import { LandingPage } from './components/LandingPage';
 import { PublicDashboard } from './components/dashboards/PublicDashboard/PublicDashboard';
 import { ProjectManagerDashboard } from './components/dashboards/ProjectManagerDashboard';
@@ -123,7 +122,21 @@ function App() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+          className="text-center"
+        >
+          <LoadingSpinner size="lg" />
+          <motion.p 
+            className="mt-4 text-gray-600 font-medium"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            Loading Samudra Ledger...
+          </motion.p>
+        </motion.div>
       </div>
     );
   }
@@ -134,110 +147,175 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    >
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <motion.header 
+        className="bg-white/80 backdrop-blur-md shadow-lg border-b border-white/20"
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => !user && setShowAuth(false)}>
-              <div className="bg-blue-600 rounded-lg p-2">
+          <div className="flex justify-between items-center py-6">
+            <motion.div 
+              className="flex items-center space-x-3 cursor-pointer" 
+              onClick={() => !user && setShowAuth(false)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <div className="bg-gradient-to-r from-blue-600 to-green-600 rounded-2xl p-3 shadow-lg">
                 <Waves className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Samudra Ledger</h1>
-                <p className="text-sm text-gray-600">Blue Carbon Registry</p>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
+                  Samudra Ledger
+                </h1>
+                <p className="text-sm text-gray-600 font-medium">Blue Carbon Registry</p>
               </div>
-            </div>
+            </motion.div>
             
             {user ? (
-              <div className="flex items-center space-x-4">
-                <Badge variant="secondary" className="flex items-center space-x-1">
+              <motion.div 
+                className="flex items-center space-x-4"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <AnimatedBadge variant="info" className="flex items-center space-x-1">
                   {getRoleIcon(user.user_metadata.role)}
                   <span>{getRoleLabel(user.user_metadata.role)}</span>
-                </Badge>
-                <span className="text-sm text-gray-600">{user.user_metadata.name}</span>
-                <Button variant="outline" size="sm" onClick={handleSignOut}>
+                </AnimatedBadge>
+                <span className="text-sm text-gray-600 font-medium">{user.user_metadata.name}</span>
+                <AnimatedButton variant="outline" size="sm" onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
-                </Button>
-              </div>
+                </AnimatedButton>
+              </motion.div>
             ) : (
-              <Button variant="outline" onClick={() => setShowAuth(false)}>
+              <AnimatedButton variant="outline" onClick={() => setShowAuth(false)}>
                 Back to Home
-              </Button>
+              </AnimatedButton>
             )}
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Main Content */}
-      <main className={user ? "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" : ""}>
+      <main className={user ? "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" : ""}>
         {!user ? (
-          <div className="max-w-md mx-auto py-8">
+          <motion.div 
+            className="max-w-md mx-auto py-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             <AuthForm />
-          </div>
+          </motion.div>
         ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className={`grid w-full ${getGridCols()}`}>
-              <TabsTrigger value="public" className="flex items-center space-x-2">
-                <Waves className="h-4 w-4" />
-                <span>Public</span>
-              </TabsTrigger>
-              {user.user_metadata.role === 'project_manager' && (
-                <TabsTrigger value="project_manager" className="flex items-center space-x-2">
-                  <Leaf className="h-4 w-4" />
-                  <span>Projects</span>
-                </TabsTrigger>
-              )}
-              {user.user_metadata.role === 'nccr_verifier' && (
-                <TabsTrigger value="nccr_verifier" className="flex items-center space-x-2">
-                  <Shield className="h-4 w-4" />
-                  <span>Verification</span>
-                </TabsTrigger>
-              )}
-              {user.user_metadata.role === 'buyer' && (
-                <TabsTrigger value="buyer" className="flex items-center space-x-2">
-                  <TrendingUp className="h-4 w-4" />
-                  <span>Marketplace</span>
-                </TabsTrigger>
-              )}
-            </TabsList>
-
-            <div className="mt-6">
-              <TabsContent value="public">
-                <PublicDashboard />
-              </TabsContent>
-              
-              <TabsContent value="project_manager">
-                <ProjectManagerDashboard user={user} />
-              </TabsContent>
-              
-              <TabsContent value="nccr_verifier">
-                <NCCRVerifierDashboard user={user} />
-              </TabsContent>
-              
-              <TabsContent value="buyer">
-                <BuyerDashboard user={user} />
-              </TabsContent>
-            </div>
-          </Tabs>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <AnimatedTabs
+              tabs={[
+                { value: "public", label: "Public", icon: <Waves className="h-4 w-4" /> },
+                ...(user.user_metadata.role === 'project_manager' ? [
+                  { value: "project_manager", label: "Projects", icon: <Leaf className="h-4 w-4" /> }
+                ] : []),
+                ...(user.user_metadata.role === 'nccr_verifier' ? [
+                  { value: "nccr_verifier", label: "Verification", icon: <Shield className="h-4 w-4" /> }
+                ] : []),
+                ...(user.user_metadata.role === 'buyer' ? [
+                  { value: "buyer", label: "Marketplace", icon: <TrendingUp className="h-4 w-4" /> }
+                ] : [])
+              ]}
+              value={activeTab}
+              onValueChange={setActiveTab}
+            >
+              <AnimatePresence mode="wait">
+                {activeTab === "public" && (
+                  <motion.div
+                    key="public"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <PublicDashboard />
+                  </motion.div>
+                )}
+                
+                {activeTab === "project_manager" && (
+                  <motion.div
+                    key="project_manager"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ProjectManagerDashboard user={user} />
+                  </motion.div>
+                )}
+                
+                {activeTab === "nccr_verifier" && (
+                  <motion.div
+                    key="nccr_verifier"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <NCCRVerifierDashboard user={user} />
+                  </motion.div>
+                )}
+                
+                {activeTab === "buyer" && (
+                  <motion.div
+                    key="buyer"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <BuyerDashboard user={user} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </AnimatedTabs>
+          </motion.div>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t mt-16">
+      <motion.footer 
+        className="bg-white/80 backdrop-blur-md border-t border-gray-100 mt-20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.5 }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-gray-600">
+          <motion.div 
+            className="text-center text-gray-600"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             <p>© 2025 Samudra Ledger - Transparent Blue Carbon Registry for India</p>
             <div className="mt-3 flex justify-center">
               <BlockchainStatus variant="footer" showDetails />
             </div>
-          </div>
+          </motion.div>
         </div>
-      </footer>
+      </motion.footer>
       
       <Toaster />
-    </div>
+    </motion.div>
   );
 }
 

@@ -128,13 +128,9 @@ export function BuyerDashboard({ user }: BuyerDashboardProps) {
       setShowPurchaseDialog(false);
       setShowPaymentForm(false);
       setSelectedCredit(null);
-<<<<<<< HEAD
-      setPaymentData(null);
-      
-      // Refresh both available and owned credits
-=======
 
->>>>>>> 43d8d35ff5681ec6b9f8b0deca373cadbec45639
+      setPaymentData(null);
+
       fetchAvailableCredits();
       fetchOwnedCredits();
     } catch (error) {

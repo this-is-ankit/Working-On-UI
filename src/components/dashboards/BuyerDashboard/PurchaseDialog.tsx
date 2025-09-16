@@ -1,14 +1,13 @@
 import React from 'react';
-<<<<<<< HEAD
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../ui/dialog';
 import { Button } from '../../ui/button';
 import { CreditCard, ArrowLeft } from 'lucide-react';
-=======
+
 import { AnimatedDialog, AnimatedDialogContent, AnimatedDialogDescription, AnimatedDialogHeader, AnimatedDialogTitle } from '../../ui/animated-dialog';
 import { AnimatedButton } from '../../ui/animated-button';
 import { AnimatedInput } from '../../ui/animated-input';
-import { CreditCard } from 'lucide-react';
->>>>>>> 43d8d35ff5681ec6b9f8b0deca373cadbec45639
+
 import { CarbonCredit } from '../../../types/dashboard';
 import { getHealthScoreColor } from '../../../utils/formatters';
 import { PaymentForm } from '../../payment/PaymentForm';
@@ -40,25 +39,16 @@ export function PurchaseDialog({
 
   const totalCostUSD = purchaseAmount * 15; // $15 per credit
   return (
-<<<<<<< HEAD
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            {showPaymentForm && (
-              <Button variant="ghost" size="sm" onClick={onBackToSummary}>
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            )}
-            <span>{showPaymentForm ? 'Complete Payment' : 'Purchase Carbon Credits'}</span>
-          </DialogTitle>
-          <DialogDescription>
-            {showPaymentForm 
-              ? 'Complete your secure payment to purchase carbon credits'
-              : `Purchase verified blue carbon credits from Project ${credit.projectId.slice(-8)}`
-            }
-          </DialogDescription>
-        </DialogHeader>
+
+    <AnimatedDialog open={open} onOpenChange={onOpenChange}>
+      <AnimatedDialogContent>
+        <AnimatedDialogHeader>
+          <AnimatedDialogTitle>Purchase Carbon Credits</AnimatedDialogTitle>
+          <AnimatedDialogDescription>
+            Purchase verified blue carbon credits from Project {credit.projectId.slice(-8)}
+          </AnimatedDialogDescription>
+        </AnimatedDialogHeader>
+
         
         {showPaymentForm ? (
           <PaymentForm
@@ -83,7 +73,7 @@ export function PurchaseDialog({
                     {(credit.healthScore * 100).toFixed(1)}%
                   </p>
                 </div>
-=======
+
     <AnimatedDialog open={open} onOpenChange={onOpenChange}>
       <AnimatedDialogContent>
         <AnimatedDialogHeader>
@@ -105,7 +95,7 @@ export function PurchaseDialog({
                 <p className={`font-bold text-lg ${getHealthScoreColor(credit.healthScore)}`}>
                   {(credit.healthScore * 100).toFixed(1)}%
                 </p>
->>>>>>> 43d8d35ff5681ec6b9f8b0deca373cadbec45639
+
               </div>
             </div>
             <div>
@@ -145,11 +135,7 @@ export function PurchaseDialog({
               </Button>
             </div>
           </div>
-<<<<<<< HEAD
-        )}
-      </DialogContent>
-    </Dialog>
-=======
+
           <div>
             <AnimatedInput
               label="Select Amount to Purchase"
@@ -185,6 +171,6 @@ export function PurchaseDialog({
         </div>
       </AnimatedDialogContent>
     </AnimatedDialog>
->>>>>>> 43d8d35ff5681ec6b9f8b0deca373cadbec45639
+
   );
 }

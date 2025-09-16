@@ -10,17 +10,13 @@ import { StatsCards } from './ProjectManager/StatsCards';
 import { ProjectList } from './ProjectManager/ProjectList';
 import { NewProjectDialog } from './ProjectManager/NewProjectDialog';
 import { MRVSubmissionDialog } from './ProjectManager/MRVSubmissionDialog';
-<<<<<<< HEAD
+
 import { PayoutDashboard } from './ProjectManager/PayoutDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { 
-  Project, 
-  NewProjectData, 
-=======
+
 import {
   Project,
   NewProjectData,
->>>>>>> 43d8d35ff5681ec6b9f8b0deca373cadbec45639
   MRVFormData,
   EcosystemType
 } from './ProjectManager/types'; // You'll need to create this types file
@@ -266,8 +262,6 @@ export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) 
         <TabsContent value="projects" className="space-y-6">
           {/* Stats Cards */}
           <StatsCards projects={projects} />
-
-<<<<<<< HEAD
           {/* Projects List */}
           <ProjectList 
             projects={projects} 
@@ -281,15 +275,7 @@ export function ProjectManagerDashboard({ user }: ProjectManagerDashboardProps) 
           <PayoutDashboard managerId={user.id} />
         </TabsContent>
       </Tabs>
-=======
-      {/* Projects List */}
-      <ProjectList
-        projects={projects}
-        onSelectProject={handleSelectProject}
-        onDeleteProject={handleDeleteProject}
-        loading={loading}
-      />
->>>>>>> 43d8d35ff5681ec6b9f8b0deca373cadbec45639
+
 
       {/* New Project Dialog */}
       <NewProjectDialog
